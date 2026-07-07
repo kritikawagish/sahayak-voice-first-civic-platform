@@ -3,9 +3,13 @@ import { Pool } from "pg";
 
 const databaseUrl = process.env.DATABASE_URL;
 
-if (!databaseUrl) {
-  throw new Error("DATABASE_URL is required");
+// Only throw error during runtime, not during build
+if (!databaseUrl && process.env.NODE_ENV === "production") {
+  throw new Error("DATABASE_URL is required in production");
 }
+
+// Create a fallback URL for build time
+const connectionString = databaseUrl || "postgresql://postgres:postgres@localhost:5432/app_db";
 
 const globalForDb = globalThis as typeof globalThis & {
   __arenaNextJsPostgresqlPool?: Pool;
@@ -14,7 +18,7 @@ const globalForDb = globalThis as typeof globalThis & {
 export const pool =
   globalForDb.__arenaNextJsPostgresqlPool ??
   new Pool({
-    connectionString: databaseUrl,
+    connectionString,
   });
 
 if (process.env.NODE_ENV !== "production") {
