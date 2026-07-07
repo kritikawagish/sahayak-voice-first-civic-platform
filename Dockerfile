@@ -22,9 +22,6 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Install dependencies for production only
-RUN npm install --global pm2
-
 # Copy package files
 COPY package.json package-lock.json ./
 
